@@ -3,3 +3,5 @@ lib/
 .idea
 logs/
 pyvenv.cfg
+/data/
+/data.csv

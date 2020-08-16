@@ -2,7 +2,7 @@ import csv
 import logging
 from datetime import datetime
 from google_images_download import google_images_download
-
+from time import sleep
 
 logger = logging.getLogger("imagescraper-bot")
 logger.setLevel(level=logging.INFO)
@@ -33,22 +33,27 @@ def write_to_file(output_file, data):
         writer.writerow(data)
 
 
-file = 'bridge_data_sample.csv'
-field_name = 'structure_name'
-output_file = 'result.csv'
-number_of_images = 5
+file = 'data.csv'
+field_name = 'site_number'
+structure_field = 'structure_name'
+output_file = "./data/{}.csv".format(dateTimeObj.strftime("%m_%d_%H-%M-%S"))
+number_of_images = 100
+time_to_sleep = 90
 
 with open(file, newline='') as csvfile:
     reader = csv.reader(csvfile, delimiter=',', quotechar='\"')
     header = next(reader)
-    index = header.index(field_name)
+    site_id_index = header.index(field_name)
+    structure_index = header.index(structure_field)
     for row in reader:
         try:
-            bridge_name = row[index]
+            site_id = row[site_id_index]
+            bridge_name = row[structure_index]
             cleaned_bridge_name = bridge_name.replace(',', ' ')  # replaced commas to avoid multiple keywords when searching
             result = get_urls(cleaned_bridge_name, number_of_images)  # fetching image urls
             images = result[0][cleaned_bridge_name]  # list of image urls
             for image in images:
-                write_to_file(output_file, [bridge_name, image])
+                write_to_file(output_file, [site_id, bridge_name, image])
         except Exception as err:
-            logger.error("FAILED FOR {}: {}".format(row[index], err))
+            logger.error("FAILED FOR {}: {}".format(bridge_name, err))
+        sleep(time_to_sleep)
